@@ -1,0 +1,173 @@
+# qmux sidebar configuration
+# Copy to ~/.config/qmux/config.toml and edit.
+# Changes are picked up live - no restart needed.
+# All sections are optional. Only add what you want to customize.
+
+# ============================================================================
+# WORKSPACES - shorten long folder paths in card titles
+# ============================================================================
+# Each pane shows its working directory in the card title bar.
+# Workspaces replace a folder prefix with a short icon, so:
+#   ~/work/myorg/myrepo/worktree/feat  =>  ~/M/myrepo/worktree/feat
+#
+# "path" is matched as a prefix against each pane's absolute CWD.
+# Symlinks are resolved automatically. First match wins, so list longer paths first.
+
+# [[workspace]]
+# path = "~/work/myorg"   # folder path (absolute or ~-prefixed)
+# icon = "~/M"            # replaces the path prefix in card titles
+# name = "myorg"          # display label (optional; defaults to folder name)
+
+# [[workspace]]
+# path = "~/projects"
+# icon = "~/P"
+# name = "projects"
+
+
+# ============================================================================
+# SESSION ICONS - visual markers per tmux session
+# ============================================================================
+# The bottom of each card shows "session:window". You can prepend an icon
+# to any tmux session name. Use nerd font glyphs or unicode symbols.
+# Only sessions listed here get icons; others show plain text.
+
+# [icons.sessions]
+# main = ""              # shown as " main:window-name"
+# dev = ""
+
+
+# ============================================================================
+# AGENT DETECTION - which AI agent the sidebar tracks
+# ============================================================================
+# The sidebar auto-detects AI agent panes to show their status (running,
+# needs-input, done), live intent, and token spend. Defaults to Claude Code.
+#
+# Change these if you:
+# - Use a different AI agent (Codex, Copilot, custom)
+# - Installed Claude Code in a non-standard location
+
+[agent]
+name = "Claude Code"            # fallback label when no intent is detected from the pane
+detect_regex = '(?i)\bclaude\b' # regex to identify agent panes by title/command
+# data_dir: where the agent writes session transcripts (JSONL files).
+# The sidebar scans these to calculate token usage shown in the footer.
+# Default (empty string): ~/.claude/projects (Claude Code's standard path).
+# Only set this if your agent writes transcripts to a different location.
+# data_dir = "~/.claude/projects"
+
+
+# ============================================================================
+# PRICING - token cost calculation for the footer
+# ============================================================================
+# The sidebar shows estimated daily spend by scanning transcript files and
+# multiplying token counts by these prices.
+#
+# Prices are in USD per 1 million tokens.
+# Model matching: "prefix" is checked against model names in transcripts.
+# Longest prefix match wins. Unknown models fall back to sonnet pricing.
+#
+# IMPORTANT: setting ANY [[pricing]] entry replaces the ENTIRE built-in
+# table, so list all models you use. Omit this section entirely to use
+# the built-in Claude pricing.
+
+# [[pricing]]
+# prefix = "claude-opus-4"       # matches "claude-opus-4-..." in transcripts
+# in = 15.0                      # input tokens
+# out = 75.0                     # output tokens
+# cache_write = 18.75            # prompt cache creation tokens
+# cache_read = 1.50              # prompt cache hit tokens
+#
+# [[pricing]]
+# prefix = "claude-sonnet-4"
+# in = 3.0
+# out = 15.0
+# cache_write = 3.75
+# cache_read = 0.30
+#
+# [[pricing]]
+# prefix = "claude-haiku-4"
+# in = 1.0
+# out = 5.0
+# cache_write = 1.25
+# cache_read = 0.10
+
+
+# ============================================================================
+# THEME - color palette (hex values)
+# ============================================================================
+# Defaults to Catppuccin Mocha. Used for card borders, status highlights,
+# animations, and text styling.
+
+# [theme]
+# peach = "#FAB387"             # needs-input pane border + blinking highlight
+# green = "#A6E3A1"             # running/working pane border
+# yellow = "#F9E2AF"            # done/unread pane border
+# blue = "#89B4FA"              # focused pane border
+# mauve = "#CBA6F7"             # cursor highlight (non-focused selection)
+# dim = "#6C7086"               # idle pane border + faint/secondary text
+# lavender = "#B4BEFE"          # active card marching animation
+# yellow_stale = "#C9B88A"      # done pane after 12 hours (fading effect)
+# yellow_very_stale = "#9A9080" # done pane after 1 day (more faded)
+# rainbow = [                   # working pane verb label color cycle
+#   "#F38BA8", "#FAB387", "#F9E2AF", "#A6E3A1",
+#   "#94E2D5", "#89B4FA", "#CBA6F7",
+# ]
+
+
+# ============================================================================
+# BADGES - status emoji shown in the location line
+# ============================================================================
+# Each pane's status is shown as an emoji badge next to "session:window".
+# Tmux options (@tmux_sidebar_badge_*) can override these per-session.
+
+# [badges]
+# running = "⏳"         # pane is actively generating output
+# needs_input = "❓"     # pane is waiting for user input (approval, question)
+# done = "✅"            # pane finished and is idle
+# error = "❌"           # pane encountered an error
+
+
+# ============================================================================
+# TIMING - refresh rates and cache durations
+# ============================================================================
+# Values are Go duration strings: "1s", "500ms", "5m", "2h".
+# Lower refresh = more responsive but more CPU. Defaults are tuned for
+# a good balance. Only set what you want to change.
+
+# [timing]
+# refresh_interval = "1s"          # main tree rebuild poll (1s = responsive, not wasteful)
+# hidden_refresh_interval = "3s"   # poll rate when sidebar pane is hidden (saves CPU)
+# input_poll_ms = 25               # bubbletea input poll interval in milliseconds
+# git_cache_ttl = "10s"            # how long repo+branch info is cached per working dir
+# gh_cache_ttl = "5m"              # how long GitHub PR / check results are cached
+# gh_timeout = "2s"                # max wait for a single `gh` CLI call
+# intent_stale = "30s"             # tool-intent labels disappear after this (ephemeral)
+# hook_running_stale = "60s"       # stop trusting a "running" hook if no update in this long
+# hook_needs_input_stale = "120s"  # stop trusting a "needs-input" hook after this
+# daemon_bind_poll = "25ms"        # how fast the display client retries daemon connection
+# standalone_deadline = "3s"       # if daemon doesn't respond in this time, run in-process
+
+
+# ============================================================================
+# SIDEBAR - display defaults
+# ============================================================================
+
+# [sidebar]
+# width = 25              # sidebar pane width in terminal columns
+# scrolloff = 8           # minimum rows visible above/below cursor when scrolling
+# mouse_scroll_lines = 3  # how many rows per mouse scroll wheel tick
+
+
+# ============================================================================
+# CARD - toggle which lines appear inside each pane card
+# ============================================================================
+# All default to true. Set to false to hide a line and make cards more compact.
+
+# [card]
+# show_git = true         # git branch + changed/unpushed counts
+# show_pr = true          # GitHub PR number + check status + review state
+# show_context = true     # model name + context % + effort level
+# show_intent = true      # live tool intent ("editing foo.go") while running
+# show_shells = true      # background shell count badge
+# show_subagents = true   # running subagent count + types
+# show_location = true    # session:window location line with status badge
