@@ -2,6 +2,29 @@
 
 Single Go binary replacing tmux-sidebar Python+Bash plugin. Displays all Claude Code panes across tmux sessions as flat card layout with realtime updates, status detection, visual notifications.
 
+```
++ ~/project-a ------------------ 12m ago +
+| Refactor auth middleware               |
+| main - 3 changed                       |
+| * 230k/1M - Opus 4.6                   |
+| config:tmux                            |
++ 1 -------------------------------------+
++ ~/project-b ------------------- 5h ago +
+| Fix security review findings           |
+| feat/fix - 2 changed                   |
+| * 180k/1M - Opus 4.6                   |
+| dev:web                                |
++ 2 -------------------------------------+
++ ~/project-c --------------- just asked +
+| Deploy staging production              |
+| master                                 |
+| * 90k/1M - Opus 4.6                    |
+| ops:deploy                             |
++ 3 -------------------------------------+
+```
+
+Each card shows: repo path + last activity time, AI-generated session title, git branch + changed file count, context usage + model, and session:window location. Cards are color-coded by status: green (running), yellow (unread), red (needs input with blink), dim (idle). Active card gets a blue highlight border.
+
 ## Setup
 
 Three steps for a new machine:
