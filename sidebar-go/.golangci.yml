@@ -1,0 +1,15 @@
+version: "2"
+
+# errcheck    — fire-and-forget fs/exec calls (atomic state writes, best-effort
+#               tmux focus, deferred Closers). Intentional, too noisy.
+# unused      — dev-build helpers (perfStart/End, captureStatusBar) kept for
+#               debugging but not referenced by the bubbletea path.
+# staticcheck — style suggestions (struct conversions, tagged switches) that
+#               are diff churn with no behaviour change.
+
+linters:
+  default: standard
+  disable:
+    - errcheck
+    - unused
+    - staticcheck

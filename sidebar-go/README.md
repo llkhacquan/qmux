@@ -2,12 +2,26 @@
 
 Single Go binary replacing tmux-sidebar Python+Bash plugin. Displays all Claude Code panes across tmux sessions as flat card layout with realtime updates, status detection, visual notifications.
 
-## Install
+## Setup
+
+Three steps for a new machine:
+
+### 1. Build and install
 
 ```bash
-cd tmux/sidebar-go
-make install   # builds, signs, installs to ~/.local/bin/sidebar-go
+cd sidebar-go
+make install   # builds, ad-hoc signs, installs to ~/.local/bin/sidebar-go
 ```
+
+### 2. tmux config
+
+Add the keybindings and hooks to `~/.tmux.conf` - see the [tmux config](#tmux-config) section below. Alternatively, source `sidebar.tmux` as a TPM plugin if you prefer.
+
+### 3. Claude Code hooks (optional)
+
+Hook scripts in `hooks/` feed richer data (instant status, live tool intent, context %, model name, AI titles, macOS notifications). Without them, sidebar-go still works via terminal capture.
+
+See **[hooks/README.md](hooks/README.md)** for install instructions and full reference.
 
 ## macOS endpoint security (antivirus / EDR)
 
