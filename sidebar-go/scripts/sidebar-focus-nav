@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# Move the sidebar cursor up/down WITHOUT forking sidebar-go.
+#
+# Why this exists: `sidebar-go focus-up/down` is a full 12MB Go binary that
+# Elastic EDR analyzes on every exec (~230-460ms), and prefix+Up/Down fires it
+# per keypress — so nav felt sluggish. The actual work is pure tmux: find the
+# "Sidebar" pane, focus it, and inject an arrow key into the running
+# `sidebar-go display` process's PTY (bubbletea already reads it). send-keys IS
+# the message to the live process — no new sidebar-go starts. tmux is trusted
+# and fast, so this drops the per-keypress cost from ~230ms to a few ms.
+#
+# Only the rare "no sidebar in this window" case falls back to the Go binary
+# (which then switches among Claude panes via its loadTree logic).
+set -euo pipefail
+
+dir="${1:-down}"
+case "$dir" in up) key=Up ;; down) key=Down ;; *) exit 1 ;; esac
+
+# Pane titles are a fixed set (see config.go sidebarTitles). Use a non-space
+# delimiter so titles containing spaces don't break field splitting.
+sb=$(tmux list-panes -F '#{pane_id}|#{pane_title}' \
+     | awk -F'|' '$2=="Sidebar"||$2=="tmux-sidebar"{print $1; exit}')
+
+if [ -n "$sb" ]; then
+  tmux select-pane -t "$sb"          # hand keyboard over so bare j/k + Enter work next
+  tmux send-keys -t "$sb" "$key"     # deliver the move to the live TUI
+else
+  exec "$HOME/.local/bin/sidebar-go" "focus-$dir"
+fi

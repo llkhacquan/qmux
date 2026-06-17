@@ -1,0 +1,4 @@
+.DS_Store
+.env
+*.log
+CLAUDE.local.md

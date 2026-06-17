@@ -1,2 +1,8 @@
 .claude/
 .bin/
+sidebar-go
+CLAUDE.local.md
+*.log
+*.sqlite
+.env
+.DS_Store

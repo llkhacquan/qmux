@@ -132,8 +132,8 @@ every sidebar:
 - Listener would route by first byte; current handlers stay the default for byte `0`.
 
 **Phase 3 — lean helper (landed alongside this revision).**
-- New binary `sidebar-notify` (`tmux/sidebar-notify/`): boots in ~15ms vs the fat sidebar-go's ~50–100ms, links only stdlib + `internal/sidebarstate`.
-- Phase 1's `ipc.go` and the bottom half of `helpers.go` (`shared-state` IO + flock) moved into `tmux/internal/sidebarstate/` so both binaries share one implementation. Drift risk eliminated.
+- Separate lean binary `sidebar-notify`: boots in ~15ms vs the fat sidebar-go's ~50-100ms, links only stdlib + `internal/sidebarstate`. Not shipped in this repo; sidebar-go falls back to `on-focus` subcommand when absent.
+- `ipc.go` and the bottom half of `helpers.go` (`shared-state` IO + flock) moved into `internal/sidebarstate/` so both binaries share one implementation. Drift risk eliminated.
 - `sidebar.tmux` rewires the five on-focus hooks to point at `sidebar-notify`, with auto-fallback to `sidebar-go on-focus` when the lean helper isn't installed (old setups keep working).
 - Active-pane source-of-truth migrated to `sharedState.Active` via a new `activePaneID()` helper. Five readers (tree.go, tea_commands.go, cmdFocusSidebar, switchByOffset, main.go boot) used to fork tmux to read `@tmux_sidebar_main_pane`; now they read shared state with the option as a cold-start fallback. User-action writers (cmdToggle, cmdSwitchLast, switchByOffset, cmdJumpTo, tea_model) keep writing the option as a defensive dual-write for any external consumers — those paths aren't latency-sensitive. With readers migrated, sidebar-notify drops its last tmux fork and the focus-hook hot path is now zero-fork.
 

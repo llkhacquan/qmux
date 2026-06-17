@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+# Toggle to the last-active Claude pane WITHOUT forking sidebar-go.
+#
+# Why this exists: `sidebar-go switch-last` is a ~12MB Go binary that Elastic
+# EDR analyzes on every exec (~0.4-0.6s), and leader+leader (F12) / prefix+Tab
+# fires it per press — so the toggle felt like a 1-2s stall. The actual work is
+# pure tmux: the already-running `sidebar-go display` TUI knows the last-active
+# pane (shared state) and can switch-client itself from its pane-resident
+# client context. send-keys IS the message to that live process — no new
+# sidebar-go starts. Same trick as sidebar-focus-nav. tmux is trusted and fast,
+# dropping the per-press cost from ~0.5s to a few ms. The TUI's event loop also
+# serializes presses, so rapid leader+leader toggles deterministically with no
+# lock.
+#
+# Only the rare "no sidebar in this window" case falls back to the Go binary
+# (which then does the toggle via its own shared-state + list-panes logic).
+set -euo pipefail
+
+# Pane titles are a fixed set (see config.go sidebarTitles). Non-space
+# delimiter so titles with spaces don't break field splitting.
+sb=$(tmux list-panes -F '#{pane_id}|#{pane_title}' \
+     | awk -F'|' '$2=="Sidebar"||$2=="tmux-sidebar"{print $1; exit}')
+
+if [ -n "$sb" ]; then
+  tmux send-keys -t "$sb" '`'   # reserved SwitchLast key, handled by the TUI
+else
+  exec "$HOME/.local/bin/sidebar-go" switch-last
+fi

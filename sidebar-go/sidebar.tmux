@@ -2,13 +2,13 @@
 # sidebar.tmux — TPM plugin entry point for sidebar-go
 #
 # Install via TPM:
-#   set -g @plugin 'llkhacquan/tmux-claude-sidebar'
+#   set -g @plugin 'llkhacquan/qmux'
 #
-# Or manually: copy this file's contents into your .tmux.conf
-# after building the binary: go install github.com/llkhacquan/tmux-claude-sidebar@latest
+# Or manually: cd sidebar-go && make install
+# then add the tmux config from README.md
 #
 # Requirements:
-#   - Go 1.21+ (for building from source)
+#   - Go 1.26+ (for building from source)
 #   - tmux 3.2+ (for hook slot numbering)
 #   - Claude Code or Codex running in tmux panes
 

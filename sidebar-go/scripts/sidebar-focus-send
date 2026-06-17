@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# Fork-free focus tracking. Ships the focused "pane|window" to the sidebar-go
+# daemon's focus.sock via socat, instead of forking the ~12MB sidebar-go binary
+# on every pane switch.
+#
+# Why this exists: tmux fires after-select-pane on every pane move — the most
+# frequent focus event. `sidebar-go on-focus` is a heavy Go binary Elastic EDR
+# re-scans on each exec (~230-460ms; its hash changes every `make install`, so
+# EDR can't cache it). socat is a stable, signed system binary EDR hash-caches
+# after the first scan, and the daemon already owns the tmux control conn to do
+# the actual tracking work — so the datagram is all we need to send. Same
+# no-Go-fork trick as sidebar-focus-nav / sidebar-switch-last.
+#
+# Fallback: socat exits nonzero when the socket is unbound (no daemon — e.g. a
+# standalone display, or the daemon mid-restart). In that case we exec the
+# proven forked path so focus tracking never silently drops.
+set -euo pipefail
+
+pane="${1:-}"
+window="${2:-}"
+sock="${XDG_STATE_HOME:-$HOME/.local/state}/tmux-sidebar/focus.sock"
+
+socat="$(command -v socat || true)"
+if [ -n "$socat" ] && printf '%s|%s' "$pane" "$window" \
+     | "$socat" -u - "UNIX-SENDTO:$sock" 2>/dev/null; then
+  exit 0
+fi
+
+exec "$HOME/.local/bin/sidebar-go" on-focus "$pane" "$window"
